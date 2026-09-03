@@ -67,9 +67,7 @@ export const deleteMeeting = async (req: Request, res: Response) => {
 
     return res.status(200).json({
         success: true,
-        message: "Audio transcribed",
-        data: {
-            text
-        }
+        message: "Audio transcribed and analyzed successfully",
+        data: updatedMeet
     })
 }
