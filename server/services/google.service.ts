@@ -46,6 +46,28 @@ export const createGoogleDoc = async (accessToken: string, title: string, conten
         }
     })
 
+    const documentId = document.data.documentId
+
+    await docs.documents.batchUpdate({
+        documentId: documentId!,
+        requestBody: {
+            requests: [{
+                insertText: {
+                    location: {
+                        index: 1
+                    },
+                    text: content
+                }
+            }]
+        }
+    })
+
+    return documentId
     
 
 }
+
+
+
+
+

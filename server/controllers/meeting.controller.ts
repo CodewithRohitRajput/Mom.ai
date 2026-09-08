@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { analyzeText } from "../services/gemini.service.js";
 import Meeting from "../models/Meeting.js";
 import { transcribeSpeech } from "../services/gemini.service.js";
+import { createGoogleDoc } from "../services/google.service.js";
 
 export const getMeeting = async (req: Request, res: Response) => {
     const meetings = await Meeting.find().sort({createdAt: -1})
@@ -53,7 +54,14 @@ export const deleteMeeting = async (req: Request, res: Response) => {
 
  export const transcribeMeeting = async (req : Request, res: Response) => {
     const audio = req.file
-
+    const accessToken = req.headers["x-google-access-token"]
+   if (typeof accessToken !== "string" || !accessToken.trim()) {
+    return res.status(400).json({
+        success: false,
+        message: "A valid Google access token is required"
+    });
+}
+    
     if(!audio) return res.status(400).json({
         success: false,
         message: "Audio file is required"
@@ -64,6 +72,9 @@ export const deleteMeeting = async (req: Request, res: Response) => {
     const newMeet = await Meeting.create({transcript: text})
     const analysizedText = await analyzeText(text)
     const updatedMeet = await Meeting.findByIdAndUpdate(newMeet._id, {analysis : analysizedText}, {new : true})
+    
+    await createGoogleDoc(accessToken, 'Mom-ai-notes', JSON.stringify(analysizedText, null, 2))
+    
 
     return res.status(200).json({
         success: true,
