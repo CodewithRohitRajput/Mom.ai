@@ -46,6 +46,10 @@ const meetingSchema = new mongoose.Schema({
             type: [String],
             default: []
         }
+    },
+    googleDocId: {
+        type: String,
+        default : null
     }
 });
 
