@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
-import Link from 'next/link'
+import { SiteNav } from '@/components/site-nav'
 import './globals.css'
 
 const geistSans = Geist({
@@ -25,25 +25,28 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-zinc-50 text-zinc-900 dark:bg-black dark:text-zinc-100">
-        <nav className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-          <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 py-4">
-            <Link href="/" className="font-semibold">mom.ai</Link>
-            <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-600 dark:text-zinc-400">
-              <Link href="/">Meetings</Link>
-              <Link href="/clients">Clients</Link>
-              <Link href="/upload">New meeting</Link>
-              <Link href="/profile">Profile</Link>
-              <Link
-                href="/connect"
-                className="rounded-lg bg-indigo-600 px-3 py-2 font-medium text-white"
-              >
-                Google Login
-              </Link>
-            </div>
+      <body className="relative flex min-h-full flex-col">
+        {/* Ambient backdrop: drifting colour blobs behind a masked grid. */}
+        <div className="aurora" aria-hidden="true">
+          <span />
+        </div>
+        <div className="grid-bg" aria-hidden="true" />
+
+        <SiteNav />
+
+        <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-12">
+          {children}
+        </main>
+
+        <footer className="mt-8 border-t border-[rgb(var(--border))]">
+          <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-6 py-6 text-xs text-faint">
+            <p>© {new Date().getFullYear()} mom.ai — meeting notes, minus the note-taking.</p>
+            <p className="inline-flex items-center gap-2">
+              <span className="dot-live" />
+              All systems operational
+            </p>
           </div>
-        </nav>
-        <main className="mx-auto max-w-5xl px-6 py-10">{children}</main>
+        </footer>
       </body>
     </html>
   )

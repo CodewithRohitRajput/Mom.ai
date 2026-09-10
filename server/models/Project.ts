@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 
 const meetingSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    },
     clientId:{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Client"

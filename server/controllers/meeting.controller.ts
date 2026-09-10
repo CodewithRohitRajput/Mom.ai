@@ -7,7 +7,8 @@ import Client from "../models/Client.js";
 import authenticateToken from "../middleware/auth.middleware.js";
 
 export const getMeeting = async (req: Request, res: Response) => {
-    const meetings = await Meeting.find().sort({createdAt: -1}).populate("clientId")
+    const userId = res.locals.userId
+    const meetings = await Meeting.find({userId}).sort({createdAt: -1}).populate("clientId")
     return res.status(200).json({success: true, data: meetings})
 
 }
