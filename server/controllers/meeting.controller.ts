@@ -27,31 +27,7 @@ export const deleteMeeting = async (req: Request, res: Response) => {
     })
 }
 
-// export const analyzeMeetingController = async (req: Request, res: Response) => {
-//     const {transcript} = req.body;
 
-//     if(!transcript){
-//         return res.status(404).json({
-//             success: false,
-//             messsage: "Transcript is required"
-//         })
-//         }
-
-//         const newMeet = await Meeting.create({transcript})
-//     const result = await analyzeText(transcript)
-    
-//     // result.pipeTextStreamToResponse(res)
-
-//     // const text = await result.text
-
-//    const updatedMeeting =  await Meeting.findByIdAndUpdate( newMeet._id,{ analysis: result}, {new: true})
-
-//     // console.log({id: newMeet._id}, updatedMeeting)
-//     return res.status(200).json({
-//         success: true,
-//         data: result
-//     })
-// }
 
  export const transcribeMeeting = async (req : Request, res: Response) => {
     const audio = req.file
