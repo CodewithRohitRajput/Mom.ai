@@ -2,12 +2,12 @@ import mongoose from "mongoose";
 
 const ClientSchema = new mongoose.Schema({
     email: String,
-    ProjectId:  {
+    projectId:  {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Meeting",
+        ref: "Project",
         default: null
     },
 
 })
 
-export default mongoose.model('client', ClientSchema)
+export default mongoose.model('Client', ClientSchema)

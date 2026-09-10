@@ -14,10 +14,39 @@ const oauth2client = new google.auth.OAuth2(
     GOOGLE_REDIRECT_URI
 )
 
+
+export const getGoogleUser = async (accessToken: string) => {
+    const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo',{
+        headers: {
+            Authorization: `Bearer ${accessToken}`
+        }
+    })
+
+    if (!response.ok) {
+        throw new Error(`Google user info request failed: ${response.status}`)
+    }
+
+    const data = await response.json() as {
+        id?: string
+        name?: string
+        email?: string
+        picture?: string
+    }
+
+    if (!data.id || !data.email) {
+        throw new Error("Google user info is missing id or email")
+    }
+
+    return data
+}
+
 export const getGoogleAuthUrl = () => {
     return oauth2client.generateAuthUrl({
         access_type: "offline",
         scope:[
+            "openid",
+            "email",
+            "profile",
               "https://www.googleapis.com/auth/documents",
             "https://www.googleapis.com/auth/drive.file"
         ]

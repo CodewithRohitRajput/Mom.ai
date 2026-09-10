@@ -4,16 +4,17 @@ import Meeting from "../models/Project.js";
 import { transcribeSpeech } from "../services/gemini.service.js";
 import { createGoogleDoc } from "../services/google.service.js";
 import Client from "../models/Client.js";
+import authenticateToken from "../middleware/auth.middleware.js";
 
 export const getMeeting = async (req: Request, res: Response) => {
-    const meetings = await Meeting.find().sort({createdAt: -1})
+    const meetings = await Meeting.find().sort({createdAt: -1}).populate("clientId")
     return res.status(200).json({success: true, data: meetings})
 
 }
 
 export const getOneMeeting = async (req: Request, res: Response) => {
     const {id} = req.params;
-    const meeting = await Meeting.findById(id)
+    const meeting = await Meeting.findById(id).populate("clientId")
 
     return res.status(200).json({success: true, data: meeting})
 }
@@ -30,15 +31,12 @@ export const deleteMeeting = async (req: Request, res: Response) => {
 
 
  export const transcribeMeeting = async (req : Request, res: Response) => {
+
+
+
     const audio = req.file
     const {clientId} = req.body
-    const accessToken = req.headers["x-google-access-token"]
-   if (typeof accessToken !== "string" || !accessToken.trim()) {
-    return res.status(400).json({
-        success: false,
-        message: "A valid Google access token is required"
-    });
-}
+    const accessToken = res.locals.googleAccessToken
 
     
     if(!audio) return res.status(400).json({
