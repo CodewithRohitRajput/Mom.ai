@@ -37,6 +37,7 @@ export const deleteMeeting = async (req: Request, res: Response) => {
 
     const audio = req.file
     const {clientId} = req.body
+    const userId = res.locals.userId
     const accessToken = res.locals.googleAccessToken
 
     
@@ -49,7 +50,7 @@ export const deleteMeeting = async (req: Request, res: Response) => {
     const prevMeetingNotes = prevMeet ? JSON.stringify({transcript: prevMeet.transcript}) : "No previous meeting notes found"
     const text = await transcribeSpeech(audio.path)
     // console.log(text)
-    const newMeet = await Meeting.create({clientId, transcript: text})
+    const newMeet = await Meeting.create({userId, clientId, transcript: text})
 
     const analysizedText = await analyzeText(text, prevMeetingNotes)
     const updatedMeet = await Meeting.findByIdAndUpdate(newMeet._id, {analysis : analysizedText}, {new : true})
