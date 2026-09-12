@@ -9,6 +9,12 @@ const meetingSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Client"
     },
+    title: String,
+    meetLink: String,
+    status: {
+        type: String,
+        default: "queued"
+    },
     transcript: {
         type: String,
         required: true

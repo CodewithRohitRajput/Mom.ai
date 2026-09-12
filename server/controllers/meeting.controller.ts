@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { analyzeText } from "../services/gemini.service.js";
-import Meeting from "../models/Project.js";
+import Meeting from "../models/Meeting.js";
 import { transcribeSpeech } from "../services/gemini.service.js";
 import { createGoogleDoc } from "../services/google.service.js";
 import Client from "../models/Client.js";
@@ -30,6 +30,43 @@ export const deleteMeeting = async (req: Request, res: Response) => {
 }
 
 
+export const scheduleMeeting = async (req: Request, res: Response) => {
+    const {title, meetLink} = req.body;
+    if(!title || !meetLink){
+        return res.status(400).json({
+            success: false,
+            message: "Title and meet link are required"
+        })
+    }
+
+    const meeting = await Meeting.create({
+        title, meetLink, status: "queued"
+    })
+
+    return res.status(201).json({
+        message: "Meeting scheduled successfully",
+        data: meeting
+    })
+
+
+
+}
+
+
+
+export const getNextMeeting = async (req: Request, res: Response) => {
+    const meeting = await Meeting.findOneAndUpdate(
+        {status: "queued"},
+        {status: "pending"},
+        {new: true}
+    )
+
+    return res.status(200).json({data : {
+        id: meeting?._id,
+        title: meeting?.title,
+        meetLink: meeting?.meetLink
+    }})
+}
 
  export const transcribeMeeting = async (req : Request, res: Response) => {
 
@@ -65,3 +102,5 @@ export const deleteMeeting = async (req: Request, res: Response) => {
         data: updatedMeet
     })
 }
+
+
