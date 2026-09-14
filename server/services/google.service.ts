@@ -40,15 +40,19 @@ export const getGoogleUser = async (accessToken: string) => {
     return data
 }
 
+
+
 export const getGoogleAuthUrl = () => {
     return oauth2client.generateAuthUrl({
         access_type: "offline",
+        prompt: "consent",
         scope:[
             "openid",
             "email",
             "profile",
               "https://www.googleapis.com/auth/documents",
-            "https://www.googleapis.com/auth/drive.file"
+            "https://www.googleapis.com/auth/drive.file",
+            "https://www.googleapis.com/auth/meetings.space.readonly"
         ]
     })
 }
@@ -56,6 +60,24 @@ export const getGoogleAuthUrl = () => {
 export const getGoogleTokens = async (code:string) => {
     const {tokens} = await oauth2client.getToken(code)
     return tokens
+}
+
+export const refreshAccessToken = async (refreshToken: string) => {
+    const client = new google.auth.OAuth2(
+        GOOGLE_CLIENT_ID,
+        GOOGLE_CLIENT_SECRET,
+        GOOGLE_REDIRECT_URI
+    )
+
+    client.setCredentials({ refresh_token: refreshToken })
+
+    const { token } = await client.getAccessToken()
+
+    if (!token) {
+        throw new Error("Failed to refresh Google access token")
+    }
+
+    return token
 }
 
 

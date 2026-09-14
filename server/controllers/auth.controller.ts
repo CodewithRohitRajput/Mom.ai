@@ -44,6 +44,10 @@ export const googleCallback = async (
   throw new Error("Google access token missing");
 }
 
+if (!tokens.refresh_token) {
+  throw new Error("Google refresh token missing - please re-authorize with consent");
+}
+
         const googleUser = await getGoogleUser(tokens.access_token)
 
 
@@ -63,7 +67,6 @@ export const googleCallback = async (
 
         const sessionToken = jwt.sign(
             {   userId: user?._id.toString(),
-                accessToken : tokens.access_token,
                 refreshToken : tokens.refresh_token
             },
             secret, 

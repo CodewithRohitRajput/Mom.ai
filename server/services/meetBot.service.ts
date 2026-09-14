@@ -1,61 +1,61 @@
-import { chromium } from "playwright";
+import { chromium } from "patchright";
 
-export const startMeetBot = async (meetLink: string) => {
+const profilePath = "./bot-profile";
 
-    const browser = await chromium.launch({
-        headless: false,
-        channel: "chrome"
-    });
+export const loginIntoBrowser = async () => {
+  const context = await chromium.launchPersistentContext(profilePath, {
+    headless: false,
+    channel: "chrome",
+  });
 
-    const context = await browser.newContext({
-        permissions: []
-    });
+  const page = context.pages()[0] ?? await context.newPage();
 
-    const page = await context.newPage();
+  await page.goto("https://accounts.google.com");
 
-    console.log("Opening Google Meet...");
+  await page.waitForTimeout(60000);
 
-    await page.goto(meetLink, {
-        waitUntil: "domcontentloaded"
-    });
+  await context.close();
 
-    console.log("Meet opened");
-
-    // Wait for Meet to load
-    await page.waitForTimeout(5000);
-
-    // Click "Continue without microphone and camera"
-    const continueButton = page.getByText(
-        "Continue without microphone and camera",
-        { exact: true }
-    );
-
-    if (await continueButton.isVisible()) {
-        console.log("Turning microphone and camera off...");
-        await continueButton.click();
-    }
-
-    // Wait for the pre-join screen
-    await page.waitForTimeout(3000);
-
-    // Click Join now
-    const joinButton = page.getByRole("button", {
-        name: /Join now/i
-    });
-
-    if (await joinButton.isVisible()) {
-        console.log("Joining meeting...");
-        await joinButton.click();
-
-        console.log("BOT JOINED MEETING 🚀");
-    } else {
-        console.log("Join button not found");
-    }
-
-    // Keep bot inside meeting
-    await page.waitForTimeout(60000);
-
-    await browser.close();
 };
 
-await meetBot("https://meet.google.com/gci-khjq-qzt")
+
+export const startMeetBot = async (meetingUrl: string) => {
+
+  const context = await chromium.launchPersistentContext(profilePath, {
+    headless: true,
+    channel: "chrome",
+    args: [
+      "--use-fake-ui-for-media-stream",
+      "--use-fake-device-for-media-stream",
+    ],
+  });
+
+  const page = context.pages()[0] ?? await context.newPage();
+
+  await page.goto(meetingUrl);
+
+  const joinBtn = page
+    .getByRole("button", { name: /join now|ask to join/i })
+    .first();
+
+  await joinBtn.waitFor({ timeout: 30000 });
+
+  await page.keyboard.press("Control+d");
+  await page.keyboard.press("Control+e");
+
+  await joinBtn.click();
+
+ 
+
+  await page
+    .getByRole("button", { name: /leave call/i })
+    .waitFor({ timeout: 120000 });
+
+
+  await page.waitForTimeout(60000);
+
+  await context.close();
+};
+
+
+startMeetBot("https://meet.google.com/ejr-gszp-zoh")

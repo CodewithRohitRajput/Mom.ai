@@ -1,8 +1,8 @@
 import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { refreshAccessToken } from '../services/google.service.js';
 
-
-export const authenticateToken = (req: Request, res: Response, next: NextFunction): void => {
+export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
   const sessionToken = req.cookies?.google_session;
 
   if (!sessionToken) {
@@ -20,8 +20,9 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
   }
 
   try {
-    const decoded = jwt.verify(sessionToken, secret) as {userId : string, accessToken: string};
-    if(!decoded.accessToken){
+    const decoded = jwt.verify(sessionToken, secret) as {userId : string, refreshToken: string};
+    
+    if(!decoded.refreshToken){
       res.status(401).json({
         success: false,
         message: "Google access token is not present"
@@ -29,9 +30,10 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
       return 
     }
     
+    const accessToken = await refreshAccessToken(decoded.refreshToken)
     
     res.locals.userId = decoded.userId    
-    res.locals.googleAccessToken = decoded.accessToken    
+    res.locals.googleAccessToken = accessToken    
 
     next();
   } catch (error) {
