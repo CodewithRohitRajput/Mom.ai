@@ -106,11 +106,35 @@ export const getNextMeeting = async (req: Request, res: Response) => {
 
 
 export const meetBotLogin = async (req: Request, res: Response) => {
-     loginIntoBrowser()
+    loginIntoBrowser().catch((error) => {
+        console.error("Bot login failed:", error)
+    })
+
+    return res.status(200).json({
+        success: true,
+        message: "Bot login started"
+    })
 }
 
 export const joinMeet = async (req: Request, res: Response) => {
     const {meetId} = req.body;
-    startMeetBot(meetId)
+    if(!meetId){
+        return res.status(400).json({
+            success: false,
+            message: "meetId is required"
+        })
+    }
+
+    const code = meetId.trim().replace(/^(https?:\/\/)?meet\.google\.com\//, '').replace(/\/$/, '')
+    const meetingUrl = `https://meet.google.com/${code}`
+
+    startMeetBot(meetingUrl).catch((error) => {
+        console.error("Bot join failed:", error)
+    })
+
+    return res.status(200).json({
+        success: true,
+        message: "Bot is joining the meeting"
+    })
 }
 

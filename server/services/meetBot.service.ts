@@ -30,32 +30,30 @@ export const startMeetBot = async (meetingUrl: string) => {
     ],
   });
 
-  const page = context.pages()[0] ?? await context.newPage();
+  try {
+    const page = context.pages()[0] ?? await context.newPage();
 
-  await page.goto(meetingUrl);
+    await page.goto(meetingUrl);
 
-  const joinBtn = page
-    .getByRole("button", { name: /join now|ask to join/i })
-    .first();
+    const joinBtn = page
+      .getByRole("button", { name: /join now|ask to join/i })
+      .first();
 
-  await joinBtn.waitFor({ timeout: 30000 });
+    await joinBtn.waitFor({ timeout: 30000 });
 
-  await page.keyboard.press("Control+d");
-  await page.keyboard.press("Control+e");
+    await page.keyboard.press("Control+d");
+    await page.keyboard.press("Control+e");
 
-  await joinBtn.click();
+    await joinBtn.click();
 
- 
+    await page
+      .getByRole("button", { name: /leave call/i })
+      .waitFor({ timeout: 30000 });
 
-  await page
-    .getByRole("button", { name: /leave call/i })
-    .waitFor({ timeout: 120000 });
-
-
-  await page.waitForTimeout(60000);
-
-  await context.close();
+    await page
+      .getByRole("button", { name: /leave call/i })
+      .waitFor({ timeout: 120000, state: "hidden" });
+  } finally {
+    await context.close();
+  }
 };
-
-
-startMeetBot("https://meet.google.com/ejr-gszp-zoh")
