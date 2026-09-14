@@ -266,7 +266,7 @@ export default function UploadPage() {
             {submitting ? <span className="spinner" /> : <SparkIcon />}
             {submitting ? "Processing..." : "Create notes"}
           </button>
-          <Link href="/" className="btn btn-ghost">
+          <Link href="/meetings" className="btn btn-ghost">
             Cancel
           </Link>
         </div>

@@ -38,29 +38,8 @@
   --grid-opacity: 0.045;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #08080b;
-    --bg-elevated: #0e0e13;
-    --surface: 22 22 28;
-    --surface-alpha: 0.6;
-    --border: 39 39 46;
-    --border-strong: 63 63 74;
-    --text: #f4f4f5;
-    --text-muted: #a1a1aa;
-    --text-faint: #71717a;
-
-    --accent: #818cf8;
-    --accent-soft: #a5b4fc;
-
-    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 12px 32px -16px rgb(0 0 0 / 0.7);
-    --shadow-lift: 0 1px 2px rgb(0 0 0 / 0.5), 0 28px 56px -24px rgb(99 102 241 / 0.45);
-
-    --aurora-opacity: 0.34;
-    --grid-line: 244 244 245;
-    --grid-opacity: 0.035;
-  }
-}
+/* The product is a light, professional SaaS surface by design — it does
+   not follow the OS dark-mode preference. */
 
 * {
   border-color: rgb(var(--border));
@@ -68,6 +47,7 @@
 
 html {
   scroll-behavior: smooth;
+  color-scheme: light;
 }
 
 body {
@@ -635,6 +615,80 @@ body {
   }
   .text-accent {
     color: var(--accent);
+  }
+
+  /* Cursor-tracked spotlight ------------------------------------- *
+   * A container sets --mx/--my (px, relative to itself) on
+   * pointermove; this radial glow follows the pointer around.       */
+  .spotlight {
+    position: relative;
+    isolation: isolate;
+  }
+  .spotlight::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    opacity: 0;
+    background: radial-gradient(
+      560px circle at var(--mx, 50%) var(--my, 0%),
+      rgb(var(--accent-glow) / 0.16),
+      transparent 60%
+    );
+    transition: opacity 0.4s ease;
+  }
+  .spotlight:hover::before {
+    opacity: 1;
+  }
+
+  /* Same idea, scoped to a single bordered card: a soft highlight
+     plus a gradient ring that both track the pointer.               */
+  .card-spot {
+    position: relative;
+    isolation: isolate;
+  }
+  .card-spot::before,
+  .card-spot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+  }
+  .card-spot::before {
+    z-index: 0;
+    background: radial-gradient(
+      280px circle at var(--px, 50%) var(--py, 50%),
+      rgb(var(--accent-glow) / 0.14),
+      transparent 70%
+    );
+  }
+  .card-spot::after {
+    z-index: 1;
+    padding: 1px;
+    background: radial-gradient(
+      280px circle at var(--px, 50%) var(--py, 50%),
+      rgb(var(--accent-glow) / 0.9),
+      transparent 70%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+  .card-spot:hover::before,
+  .card-spot:hover::after {
+    opacity: 1;
+  }
+  .card-spot > * {
+    position: relative;
+    z-index: 2;
   }
 }
 

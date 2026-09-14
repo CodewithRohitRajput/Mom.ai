@@ -38,7 +38,7 @@ function MeetingView({ id }: { id: string }) {
           <AlertIcon large />
         </span>
         <p className="text-lg font-semibold">{error}</p>
-        <Link href="/" className="btn btn-ghost">
+        <Link href="/meetings" className="btn btn-ghost">
           <BackIcon />
           Back to meetings
         </Link>
@@ -79,7 +79,7 @@ function MeetingView({ id }: { id: string }) {
     <article className="space-y-10">
       <header className="reveal space-y-6">
         <Link
-          href="/"
+          href="/meetings"
           className="group inline-flex items-center gap-1.5 text-sm text-accent"
         >
           <span className="transition-transform duration-300 group-hover:-translate-x-1">

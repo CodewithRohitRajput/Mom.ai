@@ -32,7 +32,7 @@ export default function Error({
           <RetryIcon />
           Try again
         </button>
-        <Link href="/" className="btn btn-ghost">
+        <Link href="/meetings" className="btn btn-ghost">
           Back to meetings
         </Link>
       </div>

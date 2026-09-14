@@ -186,7 +186,7 @@ export function MeetingDetail({ id }: { id: string }) {
         <div className="space-y-3 text-center">
           <h1 className="text-2xl font-semibold">Meeting not found</h1>
           <p className="text-zinc-500">This meeting may have been deleted, or the id in the URL is wrong.</p>
-          <a href="/" className="inline-block rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white">Back to meetings</a>
+          <a href="/meetings" className="inline-block rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white">Back to meetings</a>
         </div>
       </div>
     )
