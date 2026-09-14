@@ -5,6 +5,7 @@ import { transcribeSpeech } from "../services/gemini.service.js";
 import { createGoogleDoc } from "../services/google.service.js";
 import Client from "../models/Client.js";
 import authenticateToken from "../middleware/auth.middleware.js";
+import { loginIntoBrowser, startMeetBot } from "../services/meetBot.service.js";
 
 export const getMeeting = async (req: Request, res: Response) => {
     const userId = res.locals.userId
@@ -103,4 +104,13 @@ export const getNextMeeting = async (req: Request, res: Response) => {
     })
 }
 
+
+export const meetBotLogin = async (req: Request, res: Response) => {
+     loginIntoBrowser()
+}
+
+export const joinMeet = async (req: Request, res: Response) => {
+    const {meetId} = req.body;
+    startMeetBot(meetId)
+}
 
