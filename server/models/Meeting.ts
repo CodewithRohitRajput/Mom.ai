@@ -9,8 +9,16 @@ const meetingSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Client"
     },
-    title: String,
+    recallBotId: {
+        type: String,
+        default: null
+    },
+    recallStatus: {
+        type: String,
+        default : null
+    },
     meetLink: String,
+    title: String,
     status: {
         type: String,
         default: "queued"

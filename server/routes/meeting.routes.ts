@@ -1,5 +1,5 @@
 import express from 'express'
-import {  getMeeting, getOneMeeting , deleteMeeting, scheduleMeeting, getNextMeeting, meetBotLogin, joinMeet} from "../controllers/meeting.controller.js";    
+import {  getMeeting, getOneMeeting , deleteMeeting, scheduleMeeting, getNextMeeting, scheduleRecallBot } from "../controllers/meeting.controller.js";    
 import upload from '../middleware/upload.js';
 import { transcribeMeeting } from '../controllers/meeting.controller.js';
 import authenticateToken from "../middleware/auth.middleware.js";
@@ -13,8 +13,7 @@ router.delete('/get/:id', authenticateToken,deleteMeeting)
 router.post('/transcribe',authenticateToken, upload.single("audio"),transcribeMeeting )
 router.post('/schedule',authenticateToken, scheduleMeeting )
 router.get('/bot',authenticateToken, getNextMeeting )
-router.post('/bot-login',authenticateToken, meetBotLogin )
-router.post('/bot-join',authenticateToken, joinMeet )
+router.post('/bot-join',authenticateToken, scheduleRecallBot )
 
 export default router
 
