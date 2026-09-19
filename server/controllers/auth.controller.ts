@@ -57,7 +57,8 @@ if (!tokens.refresh_token) {
                 googleId: googleUser.id,
                 name: googleUser.name,
                 email: googleUser.email,
-                picture: googleUser.picture
+                picture: googleUser.picture,
+                googleRefreshToken: tokens.refresh_token
             },
             {new: true,
                 upsert: true,

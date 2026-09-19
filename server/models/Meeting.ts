@@ -17,12 +17,13 @@ const meetingSchema = new mongoose.Schema({
         type: String,
         default : null
     },
-    meetLink: String,
+    meetLink: String,   
     title: String,
     status: {
         type: String,
         default: "queued"
     },
+    transcriptStatus: String,
     transcript: {
         type: String,
         required: true

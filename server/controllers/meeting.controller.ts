@@ -2,8 +2,9 @@ import type { Request, Response } from "express";
 import { analyzeText } from "../services/gemini.service.js";
 import Meeting from "../models/Meeting.js";
 import { transcribeSpeech } from "../services/gemini.service.js";
-import { createGoogleDoc } from "../services/google.service.js";
+import { createGoogleDoc, refreshAccessToken } from "../services/google.service.js";
 import Client from "../models/Client.js";
+import User from "../models/User.js";
 import authenticateToken from "../middleware/auth.middleware.js";
 import { createRecallBot } from "../services/recall.service.js";    
 
@@ -90,6 +91,10 @@ export const scheduleRecallBot = async (req: Request, res: Response) => {
     }
 
     const bot = await createRecallBot(meetingUrl, meetingId, joinAt)
+    await Meeting.findByIdAndUpdate(meetingId, {
+        recallBotId: bot.id,
+        recallStatus: "scheduled"
+    })
     return res.status(201).json({
         success: true, 
         message: "Recall bot Scheduled successfully",
@@ -97,42 +102,57 @@ export const scheduleRecallBot = async (req: Request, res: Response) => {
     })
 }
 
- export const transcribeMeeting = async (req : Request, res: Response) => {
 
+export const processRecallTranscript = async (meetingId: string, transcriptText: string) => {
+    const meeting = await Meeting.findById(meetingId)
+    if(!meeting) return null
 
+    const user = await User.findById(meeting.userId)
+    if(!user?.googleRefreshToken) {
+        await Meeting.findByIdAndUpdate(meetingId, { transcriptStatus: "failed" })
+        return null
+    }
+    const accessToken = await refreshAccessToken(user.googleRefreshToken)
 
-    const audio = req.file
-    const {clientId} = req.body
-    const userId = res.locals.userId
-    const accessToken = res.locals.googleAccessToken
-
-    
-    if(!audio) return res.status(400).json({
-        success: false,
-        message: "Audio file is required"
-    })
-
-    const prevMeet = await Meeting.findOne({clientId}).sort({_id : -1})
+    const prevMeet = await Meeting.findOne({clientId: meeting.clientId, _id: {$ne: meeting._id}}).sort({_id: -1})
     const prevMeetingNotes = prevMeet ? JSON.stringify({transcript: prevMeet.transcript}) : "No previous meeting notes found"
-    const text = await transcribeSpeech(audio.path)
-    // console.log(text)
-    const newMeet = await Meeting.create({userId, clientId, transcript: text})
 
-    const analysizedText = await analyzeText(text, prevMeetingNotes)
-    const updatedMeet = await Meeting.findByIdAndUpdate(newMeet._id, {analysis : analysizedText}, {new : true})
-    
-    const documentId = await createGoogleDoc(accessToken, 'Mom-ai-notes', JSON.stringify(analysizedText, null, 2))
+    const analysizedText = await analyzeText(transcriptText, prevMeetingNotes)
+    const documentId = await createGoogleDoc(accessToken, `Mom-ai-notes ${meeting?.clientId?.email}`, JSON.stringify(analysizedText, null, 2))
 
-    await Meeting.findByIdAndUpdate(newMeet._id, {googleDocId: documentId}, {new: true})
+    const updatedMeet = await Meeting.findByIdAndUpdate(meetingId, {
+        googleDocId: documentId,
+        transcript: transcriptText,
+        analysis: analysizedText,
+        transcriptStatus: "done"
+    }, {new: true})
 
-    return res.status(200).json({
-        success: true,
-        message: "Audio transcribed and analyzed successfully",
-        data: updatedMeet
-    })
+    return updatedMeet
 }
 
 
+export const transcribeMeeting = async (req: Request, res: Response) => {
+    const { meetingId, transcriptText } = req.body;
+    if(!meetingId || !transcriptText){
+        return res.status(400).json({
+            success: false,
+            message: "meetingId and transcriptText are required"
+        })
+    }
+
+    const updatedMeet = await processRecallTranscript(meetingId, transcriptText)
+    if(!updatedMeet){
+        return res.status(404).json({
+            success: false,
+            message: "Meeting not found or transcript processing failed"
+        })
+    }
+
+    return res.status(200).json({
+        success: true,
+        data: updatedMeet
+    })
+}
 
 
 export const joinMeet = async (req: Request, res: Response) => {

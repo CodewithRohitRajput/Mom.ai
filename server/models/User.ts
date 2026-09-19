@@ -5,6 +5,7 @@ export const userSchema = new mongoose.Schema({
     name: String,
     email: String,
     picture: String,
+    googleRefreshToken: String,
     clientId : [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Client",

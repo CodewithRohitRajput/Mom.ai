@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser'
 import meetingRoute from './routes/meeting.routes.js'
 import authRoutes from "./routes/auth.routes.js";
 import clientRoute from './routes/client.routes.js'
+import webhookRoute from './routes/recall.webhook.routes.js'
 
 const app = express();
 const port = 8000;
@@ -26,6 +27,7 @@ app.use(cookieParser())
 app.use('/meet', meetingRoute)
 app.use("/auth", authRoutes)
 app.use("/client", clientRoute)
+app.use('/webhook', webhookRoute)
 
 app.listen(port, ()=>{
     console.log(`server is running on port ${port}`)

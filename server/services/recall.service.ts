@@ -59,3 +59,29 @@ export const createRecallBot = async (
 
     return response.json()
 }
+
+export const createTranscript = async (recordingId: string) => {
+    const response = await fetch(
+        `${RECALL_BASE_URL}/recording/${recordingId}/create_transcript/`,
+    {
+        method: "POST",
+        headers: {
+            Authorization:  `Token ${RECALL_API_KEY}`,
+            "Content-Type":"application/json",
+            Accept: "application/json"
+        },
+        body  : JSON.stringify({
+            provider: {
+                recallai_async : {
+                    language_code: "auto"
+                }
+            },
+            diarization: {
+                use_separate_streams_when_available : true
+            }
+        })
+    })
+
+    return response.json()
+}
+
